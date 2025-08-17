@@ -16,6 +16,9 @@ import {
 // ------------------------------------------------------------
 // CEP Profile Self-Assessment Web App (Single-file React)
 // Landing (Logo + Theory) → 3 Steps: Color (25) → Energy (20) → Style (6) → Result
+// - Mobile & Desktop responsive
+// - Instant results, explanations, charts, copy-to-clipboard
+// - Tailwind-friendly classes (optional)
 // ------------------------------------------------------------
 
 export default function App() {
@@ -180,13 +183,516 @@ export default function App() {
   );
 
   // ---------------------------
-  // 결과 화면, 설명 등은 그대로 유지 (생략)
+  // EXPLANATIONS
   // ---------------------------
+  const colorExplains = {
+    Green: {
+      keyword: "성장·확장·연결",
+      strengths: ["기회 발굴", "네트워킹", "빠른 시범 실행"],
+      cautions: ["마무리 약함", "산만함"],
+    },
+    Red: {
+      keyword: "열정·동기·퍼포먼스",
+      strengths: ["실행력", "동기부여", "분위기 촉발"],
+      cautions: ["번아웃 위험", "디테일 누락"],
+    },
+    Brown: {
+      keyword: "안정·운영·균형",
+      strengths: ["체계", "리스크 관리", "신뢰성"],
+      cautions: ["변화 저항", "유연성 부족"],
+    },
+    Silver: {
+      keyword: "기준·규범·정밀",
+      strengths: ["오류 탐지", "품질 보장", "규정 준수"],
+      cautions: ["완벽주의", "경직성"],
+    },
+    Blue: {
+      keyword: "통찰·전략·학습",
+      strengths: ["분석력", "장기 시야", "지식 축적"],
+      cautions: ["실행 지연", "과분석"],
+    },
+  };
 
-  return (
-    <div className="min-h-screen bg-gray-50 pb-10">
-      {/* step에 따라 다른 뷰 렌더링 */}
-      {/* ViewLanding / ViewColor / ViewEnergy / ViewStyle / ViewResult */}
+  const energyExplains = {
+    Rising: { desc: "시작·개척의 에너지", tips: ["빠른 실험", "방향 설정", "새로운 접근 환영"] },
+    Peak: { desc: "실행·정점의 에너지", tips: ["속도/성과", "짧고 명확한 목표", "추진"] },
+    Harvest: { desc: "정리·평가의 에너지", tips: ["완성도 개선", "표준화", "피드백"] },
+    Deep: { desc: "분석·축적의 에너지", tips: ["리서치", "장기 설계", "기반 다지기"] },
+  };
+
+  const typeOneLiners = {
+    // Green
+    "Green|Rising|Expressive": "개척자: 아이디어를 외부로 퍼뜨리는 개척형",
+    "Green|Rising|Reflective": "탐색자: 조용히 기회를 살피는 탐색형",
+    "Green|Peak|Expressive": "도전자: 실행과 확장을 밀어붙이는 도전자형",
+    "Green|Peak|Reflective": "조율자: 협력 속에서 균형을 잡는 조율자형",
+    "Green|Harvest|Expressive": "전략가: 성과를 정리하고 방향을 제시",
+    "Green|Harvest|Reflective": "관리자: 안정적 관계와 성과를 유지",
+    "Green|Deep|Expressive": "탐험가: 미지의 영역을 개척",
+    "Green|Deep|Reflective": "연구자: 지식을 차분히 쌓아 성장 기반 마련",
+    // Red
+    "Red|Rising|Expressive": "점화자: 열정으로 주변을 끌어올림",
+    "Red|Rising|Reflective": "촉진자: 조심스럽게 분위기를 살림",
+    "Red|Peak|Expressive": "퍼포머: 속도/성과 극대화",
+    "Red|Peak|Reflective": "전문화: 집중력으로 세밀하게 완성",
+    "Red|Harvest|Expressive": "리더: 성과 평가/정리하며 팀 이끎",
+    "Red|Harvest|Reflective": "코치: 지원과 동기부여 제공",
+    "Red|Deep|Expressive": "혁신가: 숨은 불씨를 발화해 돌파",
+    "Red|Deep|Reflective": "영감가: 내적 통찰로 비전 전달",
+    // Brown
+    "Brown|Rising|Expressive": "정립자: 새 판을 짜고 질서를 구축",
+    "Brown|Rising|Reflective": "준비자: 신중히 기반을 다지며 출발",
+    "Brown|Peak|Expressive": "운영자: 추진력으로 실행 프로세스 관리",
+    "Brown|Peak|Reflective": "최적자: 절차 개선으로 효율 향상",
+    "Brown|Harvest|Expressive": "관리자: 리스크 통제/안정적 성과",
+    "Brown|Harvest|Reflective": "감사자: 세밀 점검과 절차 완성도",
+    "Brown|Deep|Expressive": "플래너: 장기 프로젝트 설계 주도",
+    "Brown|Deep|Reflective": "안정자: 신뢰 기반의 버팀목",
+    // Silver
+    "Silver|Rising|Expressive": "설계자: 구조와 규칙을 제정",
+    "Silver|Rising|Reflective": "관찰자: 세밀히 지켜보며 규범 점검",
+    "Silver|Peak|Expressive": "분석가: 데이터 검증과 기준 실행",
+    "Silver|Peak|Reflective": "품질자: 정밀하게 과정 관리",
+    "Silver|Harvest|Expressive": "표준가: 기준/원칙 확립",
+    "Silver|Harvest|Reflective": "감별자: 차이를 가려내고 평가",
+    "Silver|Deep|Expressive": "체계자: 장기적 시스템/구조 마련",
+    "Silver|Deep|Reflective": "기준자: 내적 원칙으로 신뢰 구축",
+    // Blue
+    "Blue|Rising|Expressive": "번역자: 지식을 연결하고 확산",
+    "Blue|Rising|Reflective": "탐구자: 자료 수집과 학습 몰입",
+    "Blue|Peak|Expressive": "실행가: 전략을 현실화/추진",
+    "Blue|Peak|Reflective": "설계자: 집중적으로 구조/프로세스 설계",
+    "Blue|Harvest|Expressive": "통찰가: 결과 평가와 미래 제시",
+    "Blue|Harvest|Reflective": "시스템자: 지식 정리/데이터 관리",
+    "Blue|Deep|Expressive": "비전가: 장기 전략과 혁신 방향 제시",
+    "Blue|Deep|Reflective": "리서처: 깊이 있는 분석/연구",
+  };
+
+  const resultKey = `${topColor}|${topEnergy}|${topStyle}`;
+  const oneLiner = typeOneLiners[resultKey] || "문항을 모두 완료해주세요.";
+
+  // ---------------------------
+  // Helpers
+  // ---------------------------
+  const allAnsweredColor = colorAnswers.every((v) => v > 0);
+  const allAnsweredEnergy = energyAnswers.every((v) => v > 0);
+  const allAnsweredStyle = styleAnswers.every((v) => v > 0);
+
+  const barDataColors = [
+    { name: "Green", value: colorScores.Green },
+    { name: "Red", value: colorScores.Red },
+    { name: "Brown", value: colorScores.Brown },
+    { name: "Silver", value: colorScores.Silver },
+    { name: "Blue", value: colorScores.Blue },
+  ];
+
+  const radarDataEnergy = [
+    { stage: "Rising", value: energyScores.Rising },
+    { stage: "Peak", value: energyScores.Peak },
+    { stage: "Harvest", value: energyScores.Harvest },
+    { stage: "Deep", value: energyScores.Deep },
+  ];
+
+  const barDataStyle = [
+    { name: "Expressive", value: styleScores.Expressive },
+    { name: "Reflective", value: styleScores.Reflective },
+  ];
+
+  const copySummary = async () => {
+    const summary = `CEP Profile
+
+- Color(본질): ${topColor} (${colorExplains[topColor]?.keyword || ""})
+- Energy(에너지 단계): ${topEnergy} (${energyExplains[topEnergy]?.desc || ""})
+- Style(소통): ${topStyle}
+
+한 줄 요약: ${oneLiner}
+
+점수표
+- Color: Green ${colorScores.Green}, Red ${colorScores.Red}, Brown ${colorScores.Brown}, Silver ${colorScores.Silver}, Blue ${colorScores.Blue}
+- Energy: Rising ${energyScores.Rising}, Peak ${energyScores.Peak}, Harvest ${energyScores.Harvest}, Deep ${energyScores.Deep}
+- Style: Expressive ${styleScores.Expressive}, Reflective ${styleScores.Reflective}`;
+    try {
+      await navigator.clipboard.writeText(summary);
+      alert("결과 요약을 클립보드에 복사했어요!");
+    } catch (e) {
+      alert("복사 권한을 허용하거나 수동으로 복사해주세요.");
+    }
+  };
+
+  const resetAll = () => {
+    setColorAnswers(Array(25).fill(0));
+    setEnergyAnswers(Array(20).fill(0));
+    setStyleAnswers(Array(6).fill(0));
+    setStep(0);
+  };
+
+  // ---------------------------
+  // UI Components
+  // ---------------------------
+  const StepHeader = () => (
+    <div className="w-full max-w-5xl mx-auto mt-6 mb-4 px-4">
+      <div className="flex items-center justify-between">
+        <div className="text-2xl md:text-3xl font-extrabold tracking-tight">CEP Profile</div>
+        <div className="text-xs md:text-sm opacity-70">{subtitle}</div>
+      </div>
+      <div className="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-blue-500 transition-all"
+          style={{ width: `${Math.max(0, step - 1) * (100 / 3)}%` }}
+        />
+      </div>
+      <div className="flex gap-2 text-xs md:text-sm mt-1 opacity-70">
+        <span className={step === 1 ? "font-semibold" : ""}>1. 컬러</span>
+        <span>·</span>
+        <span className={step === 2 ? "font-semibold" : ""}>2. 에너지</span>
+        <span>·</span>
+        <span className={step === 3 ? "font-semibold" : ""}>3. 스타일</span>
+      </div>
     </div>
   );
-}
+
+  const Likert = ({ value, onChange }) => (
+    <div className="flex gap-2 items-center">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button
+          key={n}
+          className={`w-9 h-9 rounded-full border text-sm flex items-center justify-center ${
+            value === n ? "bg-blue-600 text-white border-blue-600" : "bg-white hover:bg-gray-50"
+          }`}
+          onClick={() => onChange(n)}
+          aria-label={`${n}점`}
+        >
+          {n}
+        </button>
+      ))}
+    </div>
+  );
+
+  const Question = ({ idx, text, value, onChange }) => (
+    <div className="p-4 rounded-2xl border bg-white flex flex-col md:flex-row md:items-center md:justify-between">
+      <div className="text-sm md:text-base pr-4">
+        <span className="font-semibold mr-2">{idx + 1}.</span>
+        {text}
+      </div>
+      <Likert value={value} onChange={onChange} />
+    </div>
+  );
+
+  const SectionCard = ({ title, subtitle, children }) => (
+    <div className="w-full max-w-5xl mx-auto px-4 mt-6 mb-6">
+      <div className="mb-3">
+        <div className="text-xl md:text-2xl font-bold">{title}</div>
+        {subtitle && <div className="text-sm opacity-70 mt-1">{subtitle}</div>}
+      </div>
+      <div className="grid gap-3">{children}</div>
+    </div>
+  );
+
+  // ---------------------------
+  // Landing View (Logo + Theory)
+  // ---------------------------
+  const ViewLanding = () => (
+    <div className="min-h-screen bg-gray-50">
+      <div className="w-full max-w-4xl mx-auto px-6 pt-14 pb-8 text-center">
+        <div className="text-4xl md:text-6xl font-extrabold tracking-tight">CEP Profile</div>
+        <div className="mt-2 text-sm md:text-base opacity-70">{academicSubtitle}</div>
+        <div className="mt-1 text-base md:text-xl">{subtitle}</div>
+
+        <div className="mt-8 flex flex-col md:flex-row gap-3 justify-center">
+          <button className="px-5 py-3 rounded-xl bg-blue-600 text-white" onClick={() => setStep(1)}>
+            진단 시작
+          </button>
+          <button
+            className="px-5 py-3 rounded-xl bg-white border"
+            onClick={() => setShowTheory((v) => !v)}
+          >
+            {showTheory ? "이론 배경 접기" : "이론 배경 보기"}
+          </button>
+        </div>
+      </div>
+
+      {showTheory && (
+        <div className="w-full max-w-5xl mx-auto px-6 pb-16 grid gap-6">
+          <div className="bg-white rounded-2xl border p-6">
+            <div className="text-xl font-bold mb-2">1) 심리학적 기반 (Carl Jung → MBTI)</div>
+            <ul className="list-disc pl-5 text-sm md:text-base">
+              <li>Jung: 심리 기능(사고·감정·감각·직관), 외향/내향 → Style(표현/성찰) 근거</li>
+              <li>MBTI: 본질 성향 + 상황 발현 → Color(본질) + Energy(상황) 구조</li>
+            </ul>
+          </div>
+          <div className="bg-white rounded-2xl border p-6">
+            <div className="text-xl font-bold mb-2">2) 행동·조직 심리 (DISC, Birkman)</div>
+            <ul className="list-disc pl-5 text-sm md:text-base">
+              <li>DISC: 행동 에너지의 방향·강도 → Expressive / Reflective</li>
+              <li>Birkman: 보이는 행동 vs Needs → Color / Energy / Style 분리</li>
+            </ul>
+          </div>
+          <div className="bg-white rounded-2xl border p-6">
+            <div className="text-xl font-bold mb-2">3) 전통 지혜 (개념적 차용)</div>
+            <ul className="list-disc pl-5 text-sm md:text-base">
+              <li>자연의 흐름(사계)에서 착안 → Energy 단계 (Rising/Peak/Harvest/Deep)</li>
+              <li>균형 개념(양/음)을 쉬운 언어로 단순화 → Expressive / Reflective</li>
+            </ul>
+          </div>
+          <div className="text-center">
+            <button className="px-6 py-3 rounded-xl bg-blue-600 text-white" onClick={() => setStep(1)}>
+              지금 바로 진단하러 가기
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  // ---------------------------
+  // Views per Step
+  // ---------------------------
+  const ViewColor = () => (
+    <>
+      <StepHeader />
+      <SectionCard title="1) 컬러 자가진단 (25문항 / 5점 척도)" subtitle="1 = 전혀 아니다 · 5 = 매우 그렇다">
+        {colorQuestions.map((q, i) => (
+          <Question
+            key={i}
+            idx={i}
+            text={`${q} (${colorBlocks[Math.floor(i / 5)].label})`}
+            value={colorAnswers[i]}
+            onChange={(v) => {
+              const next = [...colorAnswers];
+              next[i] = v;
+              setColorAnswers(next);
+            }}
+          />
+        ))}
+      </SectionCard>
+      <div className="w-full max-w-5xl mx-auto px-4 mb-10 flex justify-between gap-3">
+        <button className="px-4 py-3 rounded-xl bg-gray-100" onClick={resetAll}>
+          처음으로
+        </button>
+        <button
+          className={`px-4 py-3 rounded-xl text-white ${
+            allAnsweredColor ? "bg-blue-600" : "bg-gray-400"
+          }`}
+          disabled={!allAnsweredColor}
+          onClick={() => setStep(2)}
+        >
+          다음: 에너지 단계
+        </button>
+      </div>
+    </>
+  );
+
+  const ViewEnergy = () => (
+    <>
+      <StepHeader />
+      <SectionCard
+        title="2) 에너지 단계 (20문항 / 공통)"
+        subtitle="Rising/Peak/Harvest/Deep 각 5문항 · 1-5점"
+      >
+        {energyQuestions.map((q, i) => (
+          <Question
+            key={i}
+            idx={i}
+            text={`${q} (${energyStages[Math.floor(i / 5)].label})`}
+            value={energyAnswers[i]}
+            onChange={(v) => {
+              const next = [...energyAnswers];
+              next[i] = v;
+              setEnergyAnswers(next);
+            }}
+          />
+        ))}
+      </SectionCard>
+      <div className="w-full max-w-5xl mx-auto px-4 mb-10 flex justify_between gap-3">
+        <button className="px-4 py-3 rounded-xl bg-gray-100" onClick={() => setStep(1)}>
+          이전
+        </button>
+        <button
+          className={`px-4 py-3 rounded-xl text_white ${
+            allAnsweredEnergy ? "bg-blue-600" : "bg-gray-400"
+          }`}
+          disabled={!allAnsweredEnergy}
+          onClick={() => setStep(3)}
+        >
+          다음: 스타일 (Expressive/Reflective)
+        </button>
+      </div>
+    </>
+  );
+
+  const ViewStyle = () => (
+    <>
+      <StepHeader />
+      <SectionCard title="3) 소통 스타일 (Expressive / Reflective)" subtitle="6문항 · 1-5점">
+        {styleQuestions.map((q, i) => (
+          <Question
+            key={i}
+            idx={i}
+            text={`${q.text} (${q.type})`}
+            value={styleAnswers[i]}
+            onChange={(v) => {
+              const next = [...styleAnswers];
+              next[i] = v;
+              setStyleAnswers(next);
+            }}
+          />
+        ))}
+      </SectionCard>
+      <div className="w-full max-w-5xl mx-auto px-4 mb-10 flex justify-between gap-3">
+        <button className="px-4 py-3 rounded-xl bg-gray-100" onClick={() => setStep(2)}>
+          이전
+        </button>
+        <button
+          className={`px-4 py-3 rounded-xl text-white ${
+            allAnsweredStyle ? "bg-blue-600" : "bg-gray-400"
+          }`}
+          disabled={!allAnsweredStyle}
+          onClick={() => setStep(4)}
+        >
+          결과 보기
+        </button>
+      </div>
+    </>
+  );
+
+  const ResultCard = ({ title, children }) => (
+    <div className="bg-white border rounded-2xl p-5">
+      <div className="font-bold mb-2">{title}</div>
+      <div className="text-sm md:text-base opacity-80">{children}</div>
+    </div>
+  );
+
+  const ViewResult = () => (
+    <>
+      <StepHeader />
+      <div className="w-full max-w-6xl mx-auto px-4 mt-6 mb-10 grid gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <ResultCard title="나의 CEP 결과">
+            <div className="text-lg md:text-xl font-extrabold mt-1">
+              {topColor} · {topEnergy} · {topStyle}
+            </div>
+            <div className="mt-1">{oneLiner}</div>
+          </ResultCard>
+          <ResultCard title="핵심 요약">
+            <div>
+              <b>Color</b>: {topColor} — {colorExplains[topColor]?.keyword}
+            </div>
+            <div className="mt-1">
+              <b>Energy</b>: {topEnergy} — {energyExplains[topEnergy]?.desc}
+            </div>
+            <div className="mt-1">
+              <b>Style</b>: {topStyle}
+            </div>
+          </ResultCard>
+        </div>
+
+        {/* Charts */}
+        <div className="grid md:grid-cols-3 gap-4">
+          <div className="bg-white border rounded-2xl p-4">
+            <div className="font-bold mb-2">Color 점수</div>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={barDataColors}>
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          <div className="bg-white border rounded-2xl p-4">
+            <div className="font-bold mb-2">Energy 단계</div>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart data={radarDataEnergy} outerRadius={80}>
+                  <PolarGrid />
+                  <PolarAngleAxis dataKey="stage" />
+                  <PolarRadiusAxis />
+                  <Radar dataKey="value" fillOpacity={0.6} />
+                  <Tooltip />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          <div className="bg-white border rounded-2xl p-4">
+            <div className="font-bold mb-2">Style (Expressive/Reflective)</div>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={barDataStyle}>
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        {/* Explanations */}
+        <div className="grid md:grid-cols-3 gap-4">
+          <ResultCard title="Color 설명">
+            <ul className="list-disc pl-5">
+              <li>
+                <b>키워드</b>: {colorExplains[topColor]?.keyword}
+              </li>
+              <li>
+                <b>강점</b>: {colorExplains[topColor]?.strengths.join(", ")}
+              </li>
+              <li>
+                <b>주의</b>: {colorExplains[topColor]?.cautions.join(", ")}
+              </li>
+            </ul>
+          </ResultCard>
+          <ResultCard title="Energy 설명">
+            <ul className="list-disc pl-5">
+              <li>
+                <b>개요</b>: {energyExplains[topEnergy]?.desc}
+              </li>
+              <li>
+                <b>추천</b>: {energyExplains[topEnergy]?.tips.join(", ")}
+              </li>
+            </ul>
+          </ResultCard>
+          <ResultCard title="커뮤니케이션 Tip">
+            <div className="text-sm">
+              {topStyle === "Expressive" ? (
+                <ul className="list-disc pl-5">
+                  <li>직접적이고 빠른 피드백을 선호</li>
+                  <li>즉시 반응 + 행동 제안이 효과적</li>
+                  <li>결정 사항을 명확히 제시</li>
+                </ul>
+              ) : (
+                <ul className="list-disc pl-5">
+                  <li>충분한 정보와 시간을 제공</li>
+                  <li>정리된 문서/자료 기반 소통</li>
+                  <li>깊이 있는 질문과 경청</li>
+                </ul>
+              )}
+            </div>
+          </ResultCard>
+        </div>
+
+        {/* Actions */}
+        <div className="flex flex-col md:flex-row gap-3">
+          <button className="px-4 py-3 rounded-xl bg-blue-600 text-white" onClick={copySummary}>
+            결과 요약 복사
+          </button>
+          <button className="px-4 py-3 rounded-xl bg-gray-100" onClick={() => setStep(3)}>
+            다시: 스타일
+          </button>
+          <button className="px-4 py-3 rounded-xl bg-gray-100" onClick={resetAll}>
+            처음으로
+          </button>
+        </div>
+
+        <div className="text-xs opacity-60 mt-2">
+          ※ 본 도구는 CEP Profile(Color·Energy·Style) 모델을 기반으로 한 자가진단입니다. 결과는 학습/코칭 목적이며 의료적 진단이 아닙니다.
+        </div>
+      </div>
+    </>
+  );
+
+  return (
+    <div className
