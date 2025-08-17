@@ -18,7 +18,6 @@ import {
 // Landing (Logo + Theory) → 3 Steps: Color (25) → Energy (20) → Style (6) → Result
 // - Mobile & Desktop responsive
 // - Instant results, explanations, charts, copy-to-clipboard
-// - Tailwind-friendly classes (optional)
 // ------------------------------------------------------------
 
 export default function App() {
@@ -42,7 +41,7 @@ export default function App() {
     { key: "Blue", label: "Blue", color: "#3498DB" },
   ];
 
-  const colorQuestions: string[] = [
+  const colorQuestions = [
     // Green 1-5
     "새로운 아이디어를 떠올리고 시도하는 것이 즐겁다.",
     "사람들과 네트워킹하며 기회를 만든다.",
@@ -74,8 +73,7 @@ export default function App() {
     "장기적인 관점에서 전략을 세우는 게 잘 맞는다.",
     "실행보다 분석과 계획을 더 오래 한다.",
   ];
-
-  const [colorAnswers, setColorAnswers] = useState<number[]>(Array(25).fill(0));
+  const [colorAnswers, setColorAnswers] = useState(Array(25).fill(0));
 
   // ---------------------------
   // 2) ENERGY (20 items / 4×5)
@@ -87,7 +85,7 @@ export default function App() {
     { key: "Deep", label: "Deep", icon: "❄️" },
   ];
 
-  const energyQuestions: string[] = [
+  const energyQuestions = [
     // Rising 1-5
     "새로운 일을 시작할 때 설레고 에너지가 난다.",
     "시도하지 않은 방법을 먼저 해보는 편이다.",
@@ -113,12 +111,12 @@ export default function App() {
     "장기적인 안목으로 기반을 다지는 것을 좋아한다.",
     "실행보다 리서치·준비 과정에서 만족을 느낀다.",
   ];
-  const [energyAnswers, setEnergyAnswers] = useState<number[]>(Array(20).fill(0));
+  const [energyAnswers, setEnergyAnswers] = useState(Array(20).fill(0));
 
   // ---------------------------
   // 3) STYLE (6 items)
   // ---------------------------
-  const styleQuestions: { text: string; type: "Expressive" | "Reflective" }[] = [
+  const styleQuestions = [
     { text: "회의에서 적극적으로 발언하는 편이다.", type: "Expressive" },
     { text: "내 의견을 빠르게 드러내는 편이다.", type: "Expressive" },
     { text: "다른 사람의 말을 충분히 듣고 난 뒤 말한다.", type: "Reflective" },
@@ -126,7 +124,7 @@ export default function App() {
     { text: "중요한 상황에서 결정을 신속히 내린다.", type: "Expressive" },
     { text: "결정하기 전에 충분히 자료를 모으고 고민한다.", type: "Reflective" },
   ];
-  const [styleAnswers, setStyleAnswers] = useState<number[]>(Array(6).fill(0));
+  const [styleAnswers, setStyleAnswers] = useState(Array(6).fill(0));
 
   // ---------------------------
   // SCORING
@@ -134,7 +132,7 @@ export default function App() {
   const colorScores = useMemo(() => {
     const blockSums = [0, 0, 0, 0, 0];
     for (let i = 0; i < 25; i++) {
-      const block = Math.floor(i / 5); // 0..4
+      const block = Math.floor(i / 5);
       blockSums[block] += colorAnswers[i] || 0;
     }
     return {
@@ -149,18 +147,18 @@ export default function App() {
   const energyScores = useMemo(() => {
     const sums = [0, 0, 0, 0];
     for (let i = 0; i < 20; i++) {
-      const block = Math.floor(i / 5); // 0..3
+      const block = Math.floor(i / 5);
       sums[block] += energyAnswers[i] || 0;
     }
     return { Rising: sums[0], Peak: sums[1], Harvest: sums[2], Deep: sums[3] };
   }, [energyAnswers]);
 
   const styleScores = useMemo(() => {
-    let expressive = 0,
-      reflective = 0;
+    let expressive = 0;
+    let reflective = 0;
     styleAnswers.forEach((v, idx) => {
-      const type = styleQuestions[idx].type;
-      if (type === "Expressive") expressive += v || 0;
+      const t = styleQuestions[idx].type;
+      if (t === "Expressive") expressive += v || 0;
       else reflective += v || 0;
     });
     return { Expressive: expressive, Reflective: reflective };
@@ -184,7 +182,7 @@ export default function App() {
   // ---------------------------
   // EXPLANATIONS
   // ---------------------------
-  const colorExplains: Record<string, { keyword: string; strengths: string[]; cautions: string[] }> = {
+  const colorExplains = {
     Green: {
       keyword: "성장·확장·연결",
       strengths: ["기회 발굴", "네트워킹", "빠른 시범 실행"],
@@ -212,14 +210,14 @@ export default function App() {
     },
   };
 
-  const energyExplains: Record<string, { desc: string; tips: string[] }> = {
+  const energyExplains = {
     Rising: { desc: "시작·개척의 에너지", tips: ["빠른 실험", "방향 설정", "새로운 접근 환영"] },
     Peak: { desc: "실행·정점의 에너지", tips: ["속도/성과", "짧고 명확한 목표", "추진"] },
     Harvest: { desc: "정리·평가의 에너지", tips: ["완성도 개선", "표준화", "피드백"] },
     Deep: { desc: "분석·축적의 에너지", tips: ["리서치", "장기 설계", "기반 다지기"] },
   };
 
-  const typeOneLiners: Record<string, string> = {
+  const typeOneLiners = {
     // Green
     "Green|Rising|Expressive": "개척자: 아이디어를 외부로 퍼뜨리는 개척형",
     "Green|Rising|Reflective": "탐색자: 조용히 기회를 살피는 탐색형",
@@ -313,7 +311,7 @@ export default function App() {
     try {
       await navigator.clipboard.writeText(summary);
       alert("결과 요약을 클립보드에 복사했어요!");
-    } catch (e) {
+    } catch {
       alert("복사 권한을 허용하거나 수동으로 복사해주세요.");
     }
   };
@@ -350,7 +348,7 @@ export default function App() {
     </div>
   );
 
-  const Likert = ({ value, onChange }: { value: number; onChange: (v: number) => void }) => (
+  const Likert = ({ value, onChange }) => (
     <div className="flex gap-2 items-center">
       {[1, 2, 3, 4, 5].map((n) => (
         <button
@@ -367,17 +365,7 @@ export default function App() {
     </div>
   );
 
-  const Question = ({
-    idx,
-    text,
-    value,
-    onChange,
-  }: {
-    idx: number;
-    text: string;
-    value: number;
-    onChange: (v: number) => void;
-  }) => (
+  const Question = ({ idx, text, value, onChange }) => (
     <div className="p-4 rounded-2xl border bg-white flex flex-col md:flex-row md:items-center md:justify-between">
       <div className="text-sm md:text-base pr-4">
         <span className="font-semibold mr-2">{idx + 1}.</span>
@@ -387,15 +375,7 @@ export default function App() {
     </div>
   );
 
-  const SectionCard = ({
-    title,
-    subtitle,
-    children,
-  }: {
-    title: string;
-    subtitle?: string;
-    children: React.ReactNode;
-  }) => (
+  const SectionCard = ({ title, subtitle, children }) => (
     <div className="w-full max-w-5xl mx-auto px-4 mt-6 mb-6">
       <div className="mb-3">
         <div className="text-xl md:text-2xl font-bold">{title}</div>
@@ -487,9 +467,7 @@ export default function App() {
           처음으로
         </button>
         <button
-          className={`px-4 py-3 rounded-xl text-white ${
-            allAnsweredColor ? "bg-blue-600" : "bg-gray-400"
-          }`}
+          className={`px-4 py-3 rounded-xl text-white ${allAnsweredColor ? "bg-blue-600" : "bg-gray-400"}`}
           disabled={!allAnsweredColor}
           onClick={() => setStep(2)}
         >
@@ -525,9 +503,7 @@ export default function App() {
           이전
         </button>
         <button
-          className={`px-4 py-3 rounded-xl text-white ${
-            allAnsweredEnergy ? "bg-blue-600" : "bg-gray-400"
-          }`}
+          className={`px-4 py-3 rounded-xl text-white ${allAnsweredEnergy ? "bg-blue-600" : "bg-gray-400"}`}
           disabled={!allAnsweredEnergy}
           onClick={() => setStep(3)}
         >
@@ -560,9 +536,7 @@ export default function App() {
           이전
         </button>
         <button
-          className={`px-4 py-3 rounded-xl text-white ${
-            allAnsweredStyle ? "bg-blue-600" : "bg-gray-400"
-          }`}
+          className={`px-4 py-3 rounded-xl text-white ${allAnsweredStyle ? "bg-blue-600" : "bg-gray-400"}`}
           disabled={!allAnsweredStyle}
           onClick={() => setStep(4)}
         >
@@ -572,7 +546,7 @@ export default function App() {
     </>
   );
 
-  const ResultCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  const ResultCard = ({ title, children }) => (
     <div className="bg-white border rounded-2xl p-5">
       <div className="font-bold mb-2">{title}</div>
       <div className="text-sm md:text-base opacity-80">{children}</div>
@@ -711,6 +685,9 @@ export default function App() {
     </>
   );
 
+  // ---------------------------
+  // 최종 렌더
+  // ---------------------------
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
       {step === 0 && <ViewLanding />}
